@@ -32,7 +32,7 @@ class GitRepo:
         """获得相对于 .git 目录下某个目录的绝对路径
         @param create: 当目录不存在时是否创造目录
         """
-        dir_path:  Final[str]  = os.path.join(self.gitdir, *paths)
+        dir_path: Final = os.path.join(self.gitdir, *paths)
         self._ensure_exist(dir_path, create)
         return dir_path
 
@@ -40,7 +40,7 @@ class GitRepo:
         """获得相对于 .git 目录下某个文件的绝对路径
         @param create: 当目录不存在时是否创造目录
         """
-        dir_path: Final[str] = self.repo_dir(*path[:-1], create=create)
+        dir_path: Final = self.repo_dir(*path[:-1], create=create)
         return os.path.join(dir_path, path[-1])
 
     def init_repo(self) -> 'GitRepo':
@@ -75,13 +75,13 @@ class GitRepo:
     def load_repo(self, force: bool=False) -> 'GitRepo':
         '''加载一个已经存在的 Git repo 并读取其 Config'''
         if not os.path.isdir(self.gitdir):
-            raise RuntimeError(f"Not a git repo: {work_path}")
+            raise RuntimeError(f"Not a git repo: {self.work_path}")
 
         _Exception = RuntimeWarning if force else RuntimeError
         conf_path = self.repo_file('config')
 
         if not os.path.exists(conf_path):
-            raise _Exception(f'Missing a config file: {work_path}')
+            raise _Exception(f'Missing a config file: {self.work_path}')
             
         self.conf.read(conf_path)
 
