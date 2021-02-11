@@ -48,7 +48,7 @@ class GitRepo:
 
         # 创建基础目录
         self.repo_dir('branches', create=True)  # 保存分支
-        self.repo_dir('object', create=True)  # 保存对象
+        self.repo_dir('objects', create=True)  # 保存对象
         self.repo_dir('refs', 'tags', create=True)  # 保存 Tags
         self.repo_dir('refs', 'heads', create=True)  # 保存
 

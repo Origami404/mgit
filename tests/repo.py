@@ -13,7 +13,7 @@ class TestGitRepo(unittest.TestCase):
             os.makedirs(test_workpath)
 
         # 清空测试工作目录
-        map(os.remove, os.listdir(test_workpath))
+        os.system(f"rm -rf {os.path.join(test_workpath, '.git')}")
 
     def test_create_repo(self):
         repo = create_repo(test_workpath)
@@ -23,7 +23,7 @@ class TestGitRepo(unittest.TestCase):
             self.assertTrue(os.path.exists(path))
 
         assertDirExist('branches')
-        assertDirExist('object')
+        assertDirExist('objects')
         assertDirExist('refs', 'tags')
         assertDirExist('refs', 'heads')
 
