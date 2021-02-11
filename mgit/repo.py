@@ -36,7 +36,7 @@ class GitRepo:
         self._ensure_exist(dir_path, create)
         return dir_path
 
-    def repo_file(self, *path, create: bool=True):
+    def repo_file(self, *path, create: bool=True) -> str:
         """获得相对于 .git 目录下某个文件的绝对路径
         @param create: 当目录不存在时是否创造目录
         """
