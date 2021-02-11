@@ -1,8 +1,7 @@
 import unittest
 import os
 from mgit.repo import create_repo
-
-test_workpath = r'C:\Users\Administrator\Desktop\LT\mgit\tests\test_workpath'
+from test_config import test_workpath
 
 
 class TestGitRepo(unittest.TestCase):
@@ -20,7 +19,7 @@ class TestGitRepo(unittest.TestCase):
         repo = create_repo(test_workpath)
 
         def assertDirExist(*rel_path):
-            path = repo.repo_dir(*rel_path)
+            path = repo.repo_dir(*rel_path, create=False)
             self.assertTrue(os.path.exists(path))
 
         assertDirExist('branches')
