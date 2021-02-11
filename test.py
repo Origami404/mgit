@@ -1,4 +1,5 @@
 import unittest
-from tests import repo
+from tests import repo, object
 
-unittest.main(repo)
+unittest.main(repo, exit=False)
+unittest.main(object)
