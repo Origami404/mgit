@@ -9,9 +9,7 @@ GitObjectType = Literal[b'blob', b'commit', b'tree', b'tag']
 
 
 class GitObject(ABC):
-    def __init__(self, repo: GitRepo, data: bytes = None) -> None:
-        self.repo = repo
-
+    def __init__(self, data: bytes = None) -> None:
         if data:
             self.deserialize(data)
 
@@ -87,9 +85,32 @@ def pack_obj(obj: GitObject) -> tuple[str, bytes]:
     return sha, raw
 
 
-def write_obj(obj: GitObject) -> None:
+def write_obj(repo: GitRepo, obj: GitObject) -> None:
     sha, raw = pack_obj(obj)
-    path = obj.repo.repo_file('objects', sha[:2], sha[2:], create=True)
+    path = repo.repo_file('objects', sha[:2], sha[2:], create=True)
 
     with open(path, 'wb') as f:
         f.write(zlib.compress(raw))
+
+
+def unpack_obj(raw: bytes) -> GitObject:
+    obj_type, _, raw = raw.partition(b' ')
+    lenght, _, data = raw.partition(b'\x00')
+
+    assert lenght == str(len(data)).encode('ascii')
+
+    if obj_type == 'blob':
+        return Blob(data)
+    elif obj_type == 'tree':
+        return Tree(data)
+    elif obj_type == 'commit':
+        return Tree(data)
+    else:
+        raise RuntimeError(f'Unsupport Object Type: {obj_type.decode("ascii")}')
+
+
+def read_obj(repo: GitRepo, sha: str) -> GitObject:
+    path = repo.repo_file('objects', sha[:2], sha[2:], create=False)
+
+    with open(path, 'rb') as f:
+        return unpack_obj(zlib.decompress(f.read()))
