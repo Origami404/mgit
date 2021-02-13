@@ -103,7 +103,7 @@ def unpack_obj(raw: bytes) -> GitObject:
     elif obj_type == 'tree':
         return Tree(data)
     elif obj_type == 'commit':
-        return Tree(data)
+        return Commit(data)
     else:
         raise RuntimeError(f'Unsupport Object Type: {obj_type.decode("ascii")}')
 
