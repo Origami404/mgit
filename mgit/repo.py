@@ -42,6 +42,10 @@ class GitRepo:
         dir_path: Final = self.repo_dir(*path[:-1], create=create)
         return os.path.join(dir_path, path[-1])
 
+    def open_object(self, sha: str, create: bool):
+        path = self.repo_file('objects', sha[:2], sha[2:])
+        return open(path, 'wb' if create else 'rb')
+
     def init_repo(self) -> 'GitRepo':
         # 检验工作目录是否存在
         self._ensure_exist(self.work_path, create=True)

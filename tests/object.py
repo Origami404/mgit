@@ -12,7 +12,8 @@ blob_sha1 = '81c545efebe5f57d4cab2ba9ec294c4b0cadf672'
 
 class TestBlob(TestCase):
     def setUp(self) -> None:
-        self.blob = Blob(load_repo(test_workpath), blob_file_content)
+        self.repo = load_repo(test_workpath)
+        self.blob = Blob(blob_file_content)
 
     def test_pack(self) -> None:
         sha, raw = pack_obj(self.blob)
@@ -20,9 +21,9 @@ class TestBlob(TestCase):
         self.assertEqual(sha, '81c545efebe5f57d4cab2ba9ec294c4b0cadf672')
 
     def test_write(self) -> None:
-        write_obj(self.blob)
+        write_obj(self.repo, self.blob)
 
-        path = self.blob.repo.repo_file('objects', blob_sha1[:2], blob_sha1[2:], create=False)
+        path = self.repo.repo_file('objects', blob_sha1[:2], blob_sha1[2:], create=False)
         self.assertTrue(os.path.exists(path))
 
         with open(path, 'rb') as f:

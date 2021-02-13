@@ -87,9 +87,8 @@ def pack_obj(obj: GitObject) -> tuple[str, bytes]:
 
 def write_obj(repo: GitRepo, obj: GitObject) -> None:
     sha, raw = pack_obj(obj)
-    path = repo.repo_file('objects', sha[:2], sha[2:], create=True)
 
-    with open(path, 'wb') as f:
+    with repo.open_object(sha, create=True) as f:
         f.write(zlib.compress(raw))
 
 
@@ -110,7 +109,5 @@ def unpack_obj(raw: bytes) -> GitObject:
 
 
 def read_obj(repo: GitRepo, sha: str) -> GitObject:
-    path = repo.repo_file('objects', sha[:2], sha[2:], create=False)
-
-    with open(path, 'rb') as f:
+    with repo.open_object(sha, create=False) as f:
         return unpack_obj(zlib.decompress(f.read()))
