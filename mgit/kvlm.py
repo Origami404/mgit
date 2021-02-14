@@ -1,6 +1,7 @@
+from typing import Tuple, Dict
 
 # 从 Python 3.7 开始, 内置的 dict 类型已经保证有序了
-def parse_kvlm(data: bytes) -> tuple[dict[bytes, bytes], bytes]:
+def parse_kvlm(data: bytes) -> Tuple[Dict[bytes, bytes], bytes]:
     dct = {}                    # 要返回的 key-value 列表的对应字典
     lines = data.split(b'\n')   # 将输入按行分隔
 
@@ -37,7 +38,7 @@ def parse_kvlm(data: bytes) -> tuple[dict[bytes, bytes], bytes]:
     return dct, message
 
 
-def unparse_kvlm(dct: dict[bytes, bytes], message: bytes) -> bytes:
+def unparse_kvlm(dct: Dict[bytes, bytes], message: bytes) -> bytes:
     lines = []
     for key, value in dct.items():
         # value 里的回车在下一行要加前导空格以转义

@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Final, Literal
+from typing import Final, Literal, Tuple
 import zlib
 from .repo import GitRepo
 from .kvlm import parse_kvlm, unparse_kvlm
@@ -77,7 +77,7 @@ class Tree(GitObject):
         return b'\n'.join(map(lambda item: item.serialize(), self.items))
 
 
-def pack_obj(obj: GitObject) -> tuple[str, bytes]:
+def pack_obj(obj: GitObject) -> Tuple[str, bytes]:
     data = obj.serialize()
     raw = obj.obj_type + b' ' + str(len(data)).encode('ascii') + b'\x00' + data
     sha = hashlib.sha1(raw).hexdigest()
