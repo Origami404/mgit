@@ -58,9 +58,12 @@ class TestTree(TestCase):
 
     def test_tree_item(self) -> None:
         self.assertItemEqual(self.item, b'100644', b'c.txt', '9c9ddc2cc36ec58f5fc76c7c5157cfc046dd79ea')
+        self.assertEqual(self.item.serialize(), tree_file_content[0])
 
     def test_tree(self) -> None:
         items = self.tree.items
 
         self.assertItemEqual(items[0], b'100644', b'a.txt', '81c545efebe5f57d4cab2ba9ec294c4b0cadf672')
         self.assertItemEqual(items[1], b'40000', b'b',     'fe7ce18c5d359042f6eb43e81cf7119240dd3681')
+
+        self.assertEqual(self.tree.serialize(), tree_file_content[1])
