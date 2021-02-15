@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Final, Literal, Tuple
+from typing import Final, Literal, Tuple, List
 import zlib
 from .repo import GitRepo
 from .kvlm import parse_kvlm, unparse_kvlm
@@ -49,12 +49,10 @@ class Commit(GitObject):
 
 class TreeItem:
     '''储存 Tree Object 里的一个条目'''
-    def __init__(self, item_data: bytes) -> None:
-        self.deserialize(item_data)
-
-    def deserialize(self, item_data: bytes) -> None:
-        self.mode, _, item_data = item_data.partition(b' ')
-        self.name, _, self.sha1_raw = item_data.partition(b'\x00')
+    def __init__(self, mode: bytes, name: bytes, sha1_raw: bytes) -> None:
+        self.mode = mode
+        self.name = name
+        self.sha1_raw = sha1_raw
 
     def serialize(self) -> bytes:
         return self.mode + b' ' + self.name + b'\x00' + self.sha1_raw
@@ -71,10 +69,33 @@ class Tree(GitObject):
     obj_type: Final[GitObjectType] = b'tree'
 
     def deserialize(self, data: bytes) -> None:
-        self.items = list(map(TreeItem, data.split(b'\n')))
+        self.items: List[TreeItem] = []
+        item_beg = 0
+
+        # 每个 TreeItem 之间没有分隔符
+        while True:
+            # 找到每一个 TreeItem 用于分隔 文件名 的 空格
+            name_beg = data.find(b' ', item_beg)
+            mode = data[item_beg : name_beg]      # mode 可能是 5 位或 6 位
+
+            # 找到每一个 TreeItem 用于分隔 SHA-1 的 NUL 字符
+            sha_beg = data.find(b'\x00', item_beg)
+            name = data[name_beg+1 : sha_beg]       # 文件名可以任意长 (name_beg+1 以跳过分隔符)
+
+            # 加上 SHA-1 的 二进制格式的长度+1 作为 item 的尾后指针
+            item_end = sha_beg + 21
+            sha1_raw = data[sha_beg+1 : item_end]   # SHA-1 的二进制格式必为 20 位 (sha_beg+1 以跳过分隔符)
+
+            # 若找不到 name 了就退出
+            if name_beg == -1:
+                break
+
+            # 解析成 TreeItem 并设置新的 item 的开始
+            self.items.append(TreeItem(mode, name, sha1_raw))
+            item_beg = item_end
 
     def serialize(self) -> bytes:
-        return b'\n'.join(map(lambda item: item.serialize(), self.items))
+        return b''.join(map(lambda item: item.serialize(), self.items))
 
 
 def pack_obj(obj: GitObject) -> Tuple[str, bytes]:
