@@ -1,0 +1,72 @@
+4449 5243 0000 0002 0000 0002 
+
+6026 33b5 053f fd99 6026 
+33b5 053f fd99 0000 0802  
+0050 008b 0000 81a4 0000 
+03e8 0000 03e8 0000 0005 
+81c5 45ef ebe5 f57d 4cab 
+2ba9 ec29 4c4b 0cad f672 
+0005 612e 7478 7400 0000 0000 
+
+6026 6662 15c4 8f97 
+6026 6662 15c4 8f97 0000 
+0802 0056 0b99 0000 81a4  
+0000 03e8 0000 03e8 0000 
+0005 9c9d dc2c c36e c58f 
+5fc7 6c7c 5157 cfc0 46dd 
+79ea 0007 622f 632e 7478 
+7400 0000            
+
+
+4449 5243  # 4-byte signature: DIRC
+0000 0002  # 4-byte ASCII version: 2
+0000 0002  # 32-bit entry count: 2
+
+# entry 1: a.txt
+6026 33b5  # 32-bit: c_time
+053f fd99  # 32-bit: c_time_ns
+6026 33b5  # 32-bit: m_time
+053f fd99  # 32-bit: m_time_ns
+
+0000 0802  # 32-bit: dev
+0050 008b  # 32-bit: ino
+
+0000 81a4  # 32-bit: mode: 4-bit obj_type / 3-bit unused / 9-bit unix permission
+           # 81a4: 1000 000 110100100 : 1000 for file, 000 for unused, 110/100/100 for mode 644
+
+0000 03e8  # 32-bit: uid
+0000 03e8  # 32-bit: gid
+
+0000 0005  # 32-bit: size of the file from stat(2), means len('1234\n') == 5
+
+81c5 45ef ebe5 f57d 4cab # 20-byte: the SHA-1 of the object in a SHA-1 repo
+2ba9 ec29 4c4b 0cad f672 # 
+
+0005 # flags: 1-bit / 1-bit / 2-bit / 12-bit size of its path name below: 5
+
+612e 7478 74  # its path name: 'a.txt'
+00 0000 0000  # padding: make its total size a multiple of eight bytes and end with NUL (size: 72 bytes)
+
+# entry 2: b/c.txt
+6026 6662 
+15c4 8f97 
+6026 6662 
+15c4 8f97 
+
+0000 0802 
+0056 0b99 
+
+0000 81a4  
+
+0000 03e8 
+0000 03e8 
+
+0000 0005 
+
+9c9d dc2c c36e c58f 5fc7 
+6c7c 5157 cfc0 46dd 79ea 
+
+0007 
+
+622f 632e 7478 74  # b/c.txt
+00 0000            
