@@ -3,6 +3,7 @@ from typing import Final, Literal, Tuple, List
 import zlib
 from .repo import GitRepo
 from .kvlm import parse_kvlm, unparse_kvlm
+from .utils import sha_raw_to_str
 import hashlib
 
 GitObjectType = Literal[b'blob', b'commit', b'tree', b'tag']
@@ -59,10 +60,7 @@ class TreeItem:
 
     @property
     def sha1(self) -> str:
-        # 大端序
-        sha1_int = int.from_bytes(self.sha1_raw, 'big')
-        # 去除前导的 0x
-        return hex(sha1_int)[2:]
+        return sha_raw_to_str(self.sha1_raw)
 
 
 class Tree(GitObject):
@@ -97,6 +95,15 @@ class Tree(GitObject):
     def serialize(self) -> bytes:
         return b''.join(map(lambda item: item.serialize(), self.items))
 
+
+class Tag(GitObject):
+    obj_type: Final[GitObjectType] = b'tag'
+
+    def deserialize(self, data: bytes) -> None:
+        self.dct, self.msg = parse_kvlm(data)
+
+    def serialize(self) -> bytes:
+        return unparse_kvlm(self.dct, self.msg)
 
 def pack_obj(obj: GitObject) -> Tuple[str, bytes]:
     data = obj.serialize()
