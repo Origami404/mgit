@@ -1,5 +1,5 @@
 from unittest import TestCase
-from mgit.stage import parse_entry, parse, IndexEntry, IndexFile
+from mgit.stage import read_entry, read_index, IndexEntry, IndexFile
 from mmap import mmap as Mmap
 from mmap import ACCESS_READ
 import os
@@ -10,9 +10,9 @@ index_path = os.path.join('tests', 'index-data', 'index')
 class TestEntryItem(TestCase):
     def setUp(self) -> None:
         with open(entry_item_path, 'rb') as f:
-            self.item = parse_entry(Mmap(f.fileno(), 0, access=ACCESS_READ))
+            self.item = read_entry(Mmap(f.fileno(), 0, access=ACCESS_READ))
 
-        self.index = parse(index_path)
+        self.index = read_index(index_path)
 
     def test_entry_item(self) -> None:
         self.assertTupleEqual(self.item, IndexEntry(

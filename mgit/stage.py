@@ -51,7 +51,7 @@ class IndexFile(NamedTuple):
     entries: List[IndexEntry]
 
 
-def parse_entry(file: Mmap) -> IndexEntry:
+def read_entry(file: Mmap) -> IndexEntry:
     begin = file.tell()
     int_datas = struct.unpack('!10L', file.read(10 * 4))
     sha1_raw  = struct.unpack('!20s', file.read(20))[0]   # for one arg it will return (x, ), so we need [0] to trans it to x
@@ -66,7 +66,7 @@ def parse_entry(file: Mmap) -> IndexEntry:
     return IndexEntry(*int_datas, sha_raw_to_str(sha1_raw), flags, name) # type: ignore
 
 
-def parse(index_path: str) -> IndexFile:
+def read_index(index_path: str) -> IndexFile:
     with open(index_path, 'rb') as file_obj:
         file = Mmap(file_obj.fileno(), 0, access=ACCESS_READ)
         def read_struct(format: str) -> Any:
@@ -80,6 +80,6 @@ def parse(index_path: str) -> IndexFile:
         version, entry_cnt = struct.unpack('!LL', file.read(2 * 4))
         assert entry_cnt == 2 # type: ignore
         
-        entries = [parse_entry(file) for i in range(entry_cnt)]
+        entries = [read_entry(file) for i in range(entry_cnt)]
 
     return IndexFile(version, entry_cnt, entries)
