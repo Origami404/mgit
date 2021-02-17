@@ -51,7 +51,7 @@ class IndexFile(NamedTuple):
     entries: List[IndexEntry]
 
 
-def read_entry(file: Mmap) -> IndexEntry:
+def unpack_entry(file: Mmap) -> IndexEntry:
     begin = file.tell()
     int_datas = struct.unpack('!10L', file.read(10 * 4))
     sha1_raw  = struct.unpack('!20s', file.read(20))[0]   # for one arg it will return (x, ), so we need [0] to trans it to x
@@ -65,21 +65,23 @@ def read_entry(file: Mmap) -> IndexEntry:
 
     return IndexEntry(*int_datas, sha_raw_to_str(sha1_raw), flags, name) # type: ignore
 
+def unpack_index(file: Mmap) -> IndexFile:
+    def read_struct(format: str) -> Any:
+        '''按大端序(网络字节序)读取格式为 format 的 C 类型'''
+        data = file.read(struct.calcsize(format))
+        return struct.unpack(f'!{format}', data)
+
+    signature = file.read(4)
+    assert signature == b'DIRC'
+
+    version, entry_cnt = struct.unpack('!LL', file.read(2 * 4))
+    assert entry_cnt == 2 # type: ignore
+    
+    entries = [unpack_entry(file) for i in range(entry_cnt)]
+
+    return IndexFile(version, entry_cnt, entries)
 
 def read_index(index_path: str) -> IndexFile:
     with open(index_path, 'rb') as file_obj:
         file = Mmap(file_obj.fileno(), 0, access=ACCESS_READ)
-        def read_struct(format: str) -> Any:
-            '''按大端序(网络字节序)读取格式为 format 的 C 类型'''
-            data = file.read(struct.calcsize(format))
-            return struct.unpack(f'!{format}', data)
-
-        signature = file.read(4)
-        assert signature == b'DIRC'
-
-        version, entry_cnt = struct.unpack('!LL', file.read(2 * 4))
-        assert entry_cnt == 2 # type: ignore
-        
-        entries = [read_entry(file) for i in range(entry_cnt)]
-
-    return IndexFile(version, entry_cnt, entries)
+        return unpack_index(file)
